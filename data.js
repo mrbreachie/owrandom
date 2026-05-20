@@ -360,14 +360,60 @@ const HEROES = [
       major: ["Transcendence Surge — Transcendence also boosts allies' movement speed", "Harmony Overflow — Harmony Orb also generates overhealth"]
     }
   },
+  // Missing tanks — added after roster audit
+  { name: "Hazard",       role: "Tank",    icon: "🦷",
+    beats: ["Zenyatta","Mercy","Widowmaker"],
+    loses: ["Ashe","Hanzo","Sombra"],
+    tip: "Jagged Wall cuts off escape routes and funnels enemies into your shotgun range. Spike Guard lets you trade aggressively — activate it early in a brawl. Any hitscan hero who out-ranges you wins easily; don't fight at distance.",
+    perks: {
+      minor: ["Spike Surge — Bonespur burst fires an extra projectile", "Jagged Reload — Wall placement reloads Bonespur"],
+      major: ["Downpour — Ultimate immobilizes enemies in a wider area", "Vault Boost — Violent Leap cooldown resets on kill"]
+    }
+  },
+  { name: "Domina",       role: "Tank",    icon: "🔭",
+    beats: ["Bastion","Symmetra","Reinhardt"],
+    loses: ["Reaper","Vendetta","Winston"],
+    tip: "Barrier Array blocks most frontal damage — poke from safety and punish whoever steps into your beam. Sonic Repulsors push divers away. Reaper walks through your barrier and melts you at close range where your beam is weakest.",
+    perks: {
+      minor: ["Crystal Cluster — Crystal projectile splits on impact", "Sonic Pulse — Repulsors slow enemies hit"],
+      major: ["Panopticon Extend — Ultimate duration increased", "Barrier Reinforce — Barrier Array segments regenerate faster"]
+    }
+  },
 ];
 
-// New Season 2 heroes (partial data — counters TBD as meta settles)
+// New Season 1 & 2 heroes
 const NEW_HEROES = [
+  { name: "Anran",  role: "Damage",  icon: "🔥",
+    beats: ["Zenyatta","Mercy","Lifeweaver"],
+    loses: ["Zarya","Pharah","Kiriko"],
+    tip: "Anran's kit revolves around burning enemies — her damage stacks over time, so stay on target. Zarya bubbles cleanse the burn debuff entirely. Kiriko Suzu does the same. Flyers like Pharah are out of her reach.",
+    perks: {
+      minor: ["Ember Trail — Burns spread to nearby enemies", "Flare Up — Burning enemies take bonus direct hit damage"],
+      major: ["Inferno — Ultimate leaves a burn zone on detonation", "Heat Seeker — Primary fire homes slightly on burning targets"]
+    }
+  },
+  { name: "Venture", role: "Damage", icon: "⛏️",
+    beats: ["Reinhardt","Sigma","Bastion"],
+    loses: ["Pharah","Widowmaker","Hanzo"],
+    tip: "Burrow lets you travel underground and burst up on unsuspecting targets. Smart Excavator drill is great for breaking barriers. Any ranged hero on high ground shuts you down before you can close the distance.",
+    perks: {
+      minor: ["Deep Dig — Burrow range increased", "Rock Solid — Burrow grants brief damage reduction on emerge"],
+      major: ["Seismic Slam — Emerge from Burrow creates a shockwave", "Drill Dash — Clobber gains a second charge at high perk level"]
+    }
+  },
+  { name: "Vendetta", role: "Damage", icon: "⚔️",
+    beats: ["Zenyatta","Ana","Mercy"],
+    loses: ["Orisa","Sigma","Cassidy"],
+    tip: "Soaring Slice can bypass barriers entirely — use it to dive backlines without needing to walk through. High win rate even post-nerf. Orisa and Sigma can bait and punish your predictable dive angles.",
+    perks: {
+      minor: ["Blade Rush — Soaring Slice cooldown reduced on elimination", "Lifesteal — Primary attack heals briefly on hit"],
+      major: ["Vendetta Protocol — Ult also reveals nearby enemies through walls", "Phantom Strike — Soaring Slice leaves an after-image decoy"]
+    }
+  },
   { name: "Emre",   role: "Damage",  icon: "🔋",
     beats: ["Roadhog","Orisa","Reinhardt"],
     loses: ["Tracer","Genji","Sombra"],
-    tip: "Siphon Blaster heals him as he deals damage — punish tanks up close. Cyber Frag detonates for burst damage. Was dominant but got hit with healing conversion nerfs (80% → 60%) this patch.",
+    tip: "Siphon Blaster heals him as he deals damage — punish tanks up close. Cyber Frag detonates for burst damage. Was dominant but got hit with healing conversion nerfs (80% to 60%) this patch.",
     perks: {
       minor: ["Cyber Surge — Siphon Blaster briefly overcharges after a kill", "Frag Bounce — Cyber Frag bounces once before detonating"],
       major: ["Drain Field — Siphon Blaster creates a life-steal aura briefly", "System Overload — Cyber Frag minimum radius doubled"]
@@ -375,26 +421,44 @@ const NEW_HEROES = [
   },
   { name: "Sierra", role: "Damage",  icon: "🎯",
     beats: ["Ana","Mercy","Bastion"],
-    loses: ["Winston","D.Va","Tracer"],
-    tip: "Her drone lets her grapple to unexpected angles. Primary fire is similar to Sojourn's but with a tracer dart for brief auto-aim. Got emergency buffs at launch and is climbing to S-tier.",
+    loses: ["Winston","D.Va","Kiriko"],
+    tip: "Her drone lets her grapple to unexpected angles. Tracking Shot briefly auto-aims — Kiriko Suzu cleanses it. Got emergency buffs at launch and is climbing fast. D.Va and Sigma both negate her Tracking Shot with matrix and barrier.",
     perks: {
       minor: ["Drone Recall — Drone returns faster", "Tracer Lock — Tracer dart tracks targets longer"],
       major: ["Aerial Assault — Grapple dash deals damage on arrival", "Drone Strike — Drone detonates on command for burst damage"]
     }
   },
-  { name: "Freja",  role: "Damage",  icon: "🏹",
+  { name: "Freja",  role: "Damage",  icon: "🪃",
     beats: ["Zenyatta","Ana","Mercy"],
     loses: ["D.Va","Tracer","Winston"],
-    tip: "Updraft gives vertical mobility — use it to reach high ground or escape. Bola Shot binds enemies in place. Got buffed this patch: Updraft CD from 12s to 10s and Bounty Hunting ult charge up to 33%.",
+    tip: "Updraft gives vertical mobility — reach high ground or escape dives. Bola Shot binds enemies in place for follow-up. Buffed this patch: Updraft CD 12s to 10s and Bounty Hunting ult charge up to 33%.",
     perks: {
-      minor: ["Rising Winds — Updraft no longer reduces height gained (major perk this patch)", "Forager — Heal from max life on kill"],
+      minor: ["Rising Winds — Updraft no longer reduces height gained", "Forager — Heal on elimination"],
       major: ["Bounty Hunting — Final blows grant 33% ult charge", "Volley — Bola fires in a rapid burst"]
+    }
+  },
+  { name: "Jetpack Cat", role: "Support", icon: "🐱",
+    beats: ["Bastion","Symmetra","Reinhardt"],
+    loses: ["Cassidy","Soldier: 76","Domina"],
+    tip: "Frenetic Flight lets her hover and heal from unusual angles enemies can't reach. Purr is a proximity heal that rewards staying close to your tank. Hitscan heroes track her small hitbox effectively — Domina and Mauga can also pressure her at close range.",
+    perks: {
+      minor: ["Nine Lives — Purr has a reduced cooldown", "Altitude — Frenetic Flight grants extra height ceiling"],
+      major: ["Lifeline Overdrive — Lifeline heals more at low ally health", "Pounce — Jetpack Cat can dash to an ally's location"]
+    }
+  },
+  { name: "Juno",   role: "Support", icon: "🛸",
+    beats: ["Reinhardt","Bastion","Roadhog"],
+    loses: ["D.Va","Winston","Sombra"],
+    tip: "Orbital Ray is a powerful healing beam — use it to sustain aggressive tank pushes. Her jetpack lets her reposition constantly, making her hard to pin down. D.Va and Winston can close the gap before she flies out.",
+    perks: {
+      minor: ["Thruster Boost — Jetpack speed increased briefly after healing", "Orbital Extension — Orbital Ray duration increased"],
+      major: ["Hyper Ring Spread — Hyper Ring applies to a wider path", "Mediblaster Burst — Clip empties in a single burst for high burst heal"]
     }
   },
   { name: "Mizuki", role: "Support", icon: "🌊",
     beats: ["Bastion","Symmetra","Torbjorn"],
     loses: ["Tracer","Genji","Sombra"],
-    tip: "Kekkai Sanctuary now absorbs projectiles going both in and out — new this patch. Healing reduced (50/s → 40/s) and duration cut (7s → 6s) to offset. Strong barrier-oriented support.",
+    tip: "Kekkai Sanctuary now absorbs projectiles going both in and out. Healing reduced to 40/s and duration cut to 6s this patch. Strong barrier-oriented support — place it to create safe pockets for your tank.",
     perks: {
       minor: ["Sanctuary Pulse — Kekkai Sanctuary pulses extra healing on placement", "Current — Move speed increased inside Sanctuary"],
       major: ["Tidal Wave — Sanctuary absorbs ults briefly", "Flood — Sanctuary expands on activation"]
@@ -403,10 +467,10 @@ const NEW_HEROES = [
   { name: "Wuyang", role: "Support", icon: "🐉",
     beats: ["Roadhog","Reinhardt","Sigma"],
     loses: ["Tracer","Genji","Sombra"],
-    tip: "Xuanwu Staff orbs were bugged applying armor reduction twice — fixed this patch. Strong at sustained healing. Pairs well with barrier tanks that create safe angles for his orbs.",
+    tip: "Xuanwu Staff orbs apply armor reduction — fixed double-stack bug this patch. Strong sustained healing. Pairs well with barrier tanks. His orb damage was nerfed from 40% to 30% this patch.",
     perks: {
-      minor: ["Splish Splash — Cooldown reduced (15s → 10s this patch)", "Orb Bounce — Orbs ricochet on walls"],
-      major: ["Paindrops — Orbs deal bonus damage (nerfed from 40% to 30% this patch)", "Dragon Form — Xuanwu Staff gains a transformation attack"]
+      minor: ["Splish Splash — Cooldown reduced to 10s", "Orb Bounce — Orbs ricochet on walls"],
+      major: ["Paindrops — Orbs deal 30% bonus damage", "Dragon Form — Xuanwu Staff gains a transformation attack"]
     }
   },
 ];
