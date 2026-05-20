@@ -17,9 +17,13 @@ const state = {
 function showPage(pageId) {
   document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
   document.querySelectorAll(".nav-btn").forEach(b => b.classList.remove("active"));
+  document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
 
   document.getElementById("page-" + pageId).classList.add("active");
-  document.querySelector(`.nav-btn[data-page="${pageId}"]`).classList.add("active");
+  const topBtn = document.querySelector(`.nav-btn[data-page="${pageId}"]`);
+  if (topBtn) topBtn.classList.add("active");
+  const tabBtn = document.querySelector(`.tab-btn[data-page="${pageId}"]`);
+  if (tabBtn) tabBtn.classList.add("active");
 
   if (pageId === "counters" && document.getElementById("counter-hero-grid").children.length === 0) {
     renderCounterGrid();

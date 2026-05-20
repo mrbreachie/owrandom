@@ -6,7 +6,7 @@
   <title>OW Hero Tools</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -136,6 +136,20 @@
   <footer class="site-footer">
     <p>Fan-made tool. Not affiliated with Blizzard Entertainment.</p>
   </footer>
+
+  <!-- Bottom tab bar (mobile only, shown via CSS) -->
+  <nav class="bottom-nav" aria-label="Mobile navigation">
+    <div class="bottom-nav-inner">
+      <button class="tab-btn active" data-page="selector" onclick="showPage('selector')" aria-label="Hero Selector">
+        <span class="tab-icon" aria-hidden="true">🎲</span>
+        <span>Selector</span>
+      </button>
+      <button class="tab-btn" data-page="counters" onclick="showPage('counters')" aria-label="Hero Counters">
+        <span class="tab-icon" aria-hidden="true">⚔️</span>
+        <span>Counters</span>
+      </button>
+    </div>
+  </nav>
 
   <script src="data.js"></script>
   <script src="app.js"></script>
