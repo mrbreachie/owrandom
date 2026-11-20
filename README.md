@@ -22,7 +22,7 @@ Random hero selector, counter guide and meta tier list for Overwatch. Built with
 ## Features
 
 - **Roll** — random heroes for 1–6 players. Filter by role or roll a 1-2-2 team, toggle unique heroes and random perks, or limit rolls to S/A-tier picks. Press Space to roll.
-- **Counters** — search and filter all 54 heroes. Pick one to see who they beat, who beats them, a tip, their perks, their tier and win rate, and 1–5 ratings for how hard they are to play and to counter.
+- **Counters** — search and filter all 54 heroes. Pick one to see who they beat, who beats them, a tip, their perks, their tier and win rate, and Easy / Medium / Hard / Expert ratings for how hard they are to play and to counter.
 - **Meta** — tier list by role, built from Counterwatch 5v5 win rates.
 - Roster is current for Season 5 (mid-season 5.5), including D.Mon, Shion, Doctrine and Sombra's move to Support. Hudson joins in Season 6.
 

@@ -30,25 +30,23 @@ function tierChip(name) {
   return `<span class="tier tier-${t.toLowerCase()}" title="Current tier: ${t}">${t}</span>`;
 }
 
-const RATING_WORDS = ["", "Easy", "Moderate", "Medium", "Hard", "Very hard"];
 
-function pips(n) {
-  return `<span class="pips" aria-hidden="true">${[1, 2, 3, 4, 5].map(i => `<i class="${i <= n ? "on" : ""}"></i>`).join("")}</span>`;
+function levelBadge(level) {
+  return `<span class="level level-${level.toLowerCase()}">${level}</span>`;
 }
 
-// Two rating meters: how hard to play, and how hard to counter.
+// Two ratings: how hard to play, and how hard to counter.
 function ratingBlock(name, compact = false) {
   const r = RATINGS[name];
   if (!r) return "";
-  const row = (label, n, kind) => `
-    <div class="rating ${kind}" aria-label="${label}: ${n} out of 5, ${RATING_WORDS[n]}">
+  const row = (label, level) => `
+    <div class="rating" aria-label="${label}: ${level}">
       <span class="rating-label">${label}</span>
-      ${pips(n)}
-      ${compact ? "" : `<span class="rating-word">${RATING_WORDS[n]}</span>`}
+      ${levelBadge(level)}
     </div>`;
   return `<div class="ratings${compact ? " compact" : ""}">
-    ${row(compact ? "Play" : "Difficulty to play", r.play, "play")}
-    ${row(compact ? "Counter" : "Difficulty to counter", r.counter, "counter")}
+    ${row(compact ? "Play" : "Difficulty to play", r.play)}
+    ${row(compact ? "Counter" : "Difficulty to counter", r.counter)}
   </div>`;
 }
 
@@ -275,7 +273,7 @@ function renderMeta() {
 
   $("#meta-note").innerHTML = `Source: <a href="${META.sourceUrl}" target="_blank" rel="noopener">${esc(META.source)}</a>. ` +
     `Win rates move every patch, so treat tiers as a guide rather than gospel. ` +
-    `Difficulty-to-play and difficulty-to-counter ratings (1–5, shown on each hero) are editorial estimates, not official data. ` +
+    `Difficulty-to-play and difficulty-to-counter ratings (Easy, Medium, Hard, Expert) are editorial estimates, not official data. ` +
     `${esc(META.upcoming.name)}: ${esc(META.upcoming.note)}`;
 }
 
