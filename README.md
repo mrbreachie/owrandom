@@ -1,6 +1,6 @@
 # OW Hero Tools
 
-Random hero selector + counter guide for Overwatch. Built with plain HTML, CSS, and JS — no build step needed.
+Random hero selector, counter guide and meta tier list for Overwatch. Built with plain HTML, CSS, and JS — no build step needed.
 
 ## Deploy to GitHub Pages
 
@@ -21,6 +21,14 @@ Random hero selector + counter guide for Overwatch. Built with plain HTML, CSS, 
 
 ## Features
 
-- **Hero Selector** — roll random heroes for 1–6 players, filter by role, toggle unique-only and random perks
-- **Counter Guide** — search and filter heroes, click any hero to see who they beat, who beats them, and a gameplay tip
-- Includes all Season 2 heroes: Emre, Sierra, Freja, Mizuki, Wuyang
+- **Roll** — random heroes for 1–6 players. Filter by role or roll a 1-2-2 team, toggle unique heroes and random perks, or limit rolls to S/A-tier picks. Press Space to roll.
+- **Counters** — search and filter all 54 heroes. Pick one to see who they beat, who beats them, a tip, their perks, their tier and win rate, and 1–5 ratings for how hard they are to play and to counter.
+- **Meta** — tier list by role, built from Counterwatch 5v5 win rates.
+- Roster is current for Season 5 (mid-season 5.5), including D.Mon, Shion, Doctrine and Sombra's move to Support. Hudson joins in Season 6.
+
+## Updating for a new season
+
+All data lives in `data.js`:
+- `HEROES` / `NEW_HEROES` — kits, counters, tips, perks
+- `META` — season label, tiers, win rates, upcoming hero
+- `RATINGS` — difficulty to play and to counter (editorial estimates)

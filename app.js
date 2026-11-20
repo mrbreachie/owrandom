@@ -1,268 +1,318 @@
 // ============================================================
 // OW Hero Tools — app.js
-// Page routing, hero selector logic, counter page logic
+// Routing, hero roller, counter guide, meta tier list
 // ============================================================
 
-// ─────────────── State ───────────────
+const $ = (sel, root = document) => root.querySelector(sel);
+const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
+
+const TIER_ORDER = ["S", "A", "B", "C", "D", "F"];
+const ROLES = ["Tank", "Damage", "Support"];
+
 const state = {
+  page: "selector",
   playerCount: 5,
-  perksEnabled: false,
-  uniqueOnly: true,
-  roleFilter: "all",
+  role: "all",
+  unique: true,
+  perks: false,
+  metaOnly: false,
   counterRole: "all",
-  selectedCounterHero: null,
+  selected: null,
 };
 
-// ─────────────── Page Routing ───────────────
-function showPage(pageId) {
-  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
-  document.querySelectorAll(".nav-btn").forEach(b => b.classList.remove("active"));
-  document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+const tierOf = name => META.tiers[name] || "–";
+const findHero = name => ALL_HEROES.find(h => h.name === name);
+const roleClass = role => "role-" + role.toLowerCase();
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 
-  document.getElementById("page-" + pageId).classList.add("active");
-  const topBtn = document.querySelector(`.nav-btn[data-page="${pageId}"]`);
-  if (topBtn) topBtn.classList.add("active");
-  const tabBtn = document.querySelector(`.tab-btn[data-page="${pageId}"]`);
-  if (tabBtn) tabBtn.classList.add("active");
+function tierChip(name) {
+  const t = tierOf(name);
+  return `<span class="tier tier-${t.toLowerCase()}" title="Current tier: ${t}">${t}</span>`;
+}
 
-  if (pageId === "counters" && document.getElementById("counter-hero-grid").children.length === 0) {
-    renderCounterGrid();
+const RATING_WORDS = ["", "Easy", "Moderate", "Medium", "Hard", "Very hard"];
+
+function pips(n) {
+  return `<span class="pips" aria-hidden="true">${[1, 2, 3, 4, 5].map(i => `<i class="${i <= n ? "on" : ""}"></i>`).join("")}</span>`;
+}
+
+// Two rating meters: how hard to play, and how hard to counter.
+function ratingBlock(name, compact = false) {
+  const r = RATINGS[name];
+  if (!r) return "";
+  const row = (label, n, kind) => `
+    <div class="rating ${kind}" aria-label="${label}: ${n} out of 5, ${RATING_WORDS[n]}">
+      <span class="rating-label">${label}</span>
+      ${pips(n)}
+      ${compact ? "" : `<span class="rating-word">${RATING_WORDS[n]}</span>`}
+    </div>`;
+  return `<div class="ratings${compact ? " compact" : ""}">
+    ${row(compact ? "Play" : "Difficulty to play", r.play, "play")}
+    ${row(compact ? "Counter" : "Difficulty to counter", r.counter, "counter")}
+  </div>`;
+}
+
+// ─────────────── Routing ───────────────
+function showPage(page) {
+  if (!document.getElementById("page-" + page)) page = "selector";
+  state.page = page;
+  $$(".page").forEach(p => p.classList.toggle("active", p.id === "page-" + page));
+  $$("[data-page]").forEach(b => {
+    if (b.matches(".nav-btn, .tab-btn")) b.setAttribute("aria-current", b.dataset.page === page ? "page" : "false");
+  });
+  if (location.hash !== "#" + page) history.replaceState(null, "", "#" + page);
+  window.scrollTo({ top: 0 });
+}
+
+// ─────────────── Segmented controls ───────────────
+function bindSeg(el, onChange) {
+  el.addEventListener("click", e => {
+    const btn = e.target.closest("button[role=radio]");
+    if (!btn) return;
+    $$("button", el).forEach(b => b.setAttribute("aria-checked", b === btn ? "true" : "false"));
+    onChange(btn.dataset.role);
+  });
+}
+
+// ─────────────── Roller ───────────────
+function setPlayers(n) {
+  state.playerCount = Math.min(6, Math.max(1, n));
+  $("#player-count").textContent = state.playerCount;
+  $("#dec-players").disabled = state.playerCount <= 1;
+  $("#inc-players").disabled = state.playerCount >= 6;
+}
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
   }
+  return a;
+}
+const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+
+function poolFor(role) {
+  return ALL_HEROES.filter(h =>
+    (role === "all" || h.role === role) &&
+    (!state.metaOnly || ["S", "A"].includes(tierOf(h.name)))
+  );
 }
 
-// ─────────────────────────────────────────────
-//  HERO SELECTOR PAGE
-// ─────────────────────────────────────────────
-
-function changePlayerCount(delta) {
-  state.playerCount = Math.min(6, Math.max(1, state.playerCount + delta));
-  document.getElementById("player-count").textContent = state.playerCount;
-  document.getElementById("dec-players").disabled = state.playerCount <= 1;
-  document.getElementById("inc-players").disabled = state.playerCount >= 6;
-}
-
-function applyFilters() {
-  state.roleFilter = document.getElementById("role-filter").value;
-}
-
-function togglePerks() {
-  state.perksEnabled = !state.perksEnabled;
-  const btn = document.getElementById("perks-toggle");
-  btn.setAttribute("aria-checked", state.perksEnabled);
-  btn.classList.toggle("on", state.perksEnabled);
-}
-
-function toggleUnique() {
-  state.uniqueOnly = !state.uniqueOnly;
-  const btn = document.getElementById("unique-toggle");
-  btn.setAttribute("aria-checked", state.uniqueOnly);
-  btn.classList.toggle("on", state.uniqueOnly);
-}
-
-function pickRandom(arr) {
-  return arr[Math.floor(Math.random() * arr.length)];
+function drawFrom(pool, count, used) {
+  const out = [];
+  if (state.unique) {
+    const avail = shuffle(pool.filter(h => !used.has(h.name)));
+    for (const h of avail.slice(0, count)) { out.push(h); used.add(h.name); }
+  } else {
+    for (let i = 0; i < count && pool.length; i++) out.push(pick(pool));
+  }
+  return out;
 }
 
 function rollHeroes() {
-  const pool = ALL_HEROES.filter(h =>
-    state.roleFilter === "all" || h.role === state.roleFilter
-  );
+  const used = new Set();
+  let picked = [];
 
-  if (pool.length === 0) {
-    showError("No heroes available for the selected role.");
+  if (state.role === "5v5") {
+    // Fill slots in 1-2-2 order, repeating the pattern for 6 players.
+    const slots = ["Tank", "Damage", "Damage", "Support", "Support", "Damage"].slice(0, state.playerCount);
+    for (const r of slots) picked.push(...drawFrom(poolFor(r), 1, used));
+  } else {
+    picked = drawFrom(poolFor(state.role), state.playerCount, used);
+  }
+
+  if (!picked.length) {
+    $("#results-grid").innerHTML = `<p class="error-msg" role="alert">No heroes match those filters.</p>`;
     return;
   }
-
-  const count = Math.min(state.playerCount, state.uniqueOnly ? pool.length : state.playerCount);
-  const picked = [];
-
-  if (state.uniqueOnly) {
-    const shuffled = [...pool].sort(() => Math.random() - 0.5);
-    picked.push(...shuffled.slice(0, count));
-  } else {
-    for (let i = 0; i < count; i++) picked.push(pickRandom(pool));
-  }
-
   renderResults(picked);
-  animateRoll();
-}
-
-function animateRoll() {
-  const btn = document.getElementById("roll-btn");
+  const btn = $("#roll-btn");
+  btn.classList.remove("rolling");
+  void btn.offsetWidth;
   btn.classList.add("rolling");
-  setTimeout(() => btn.classList.remove("rolling"), 600);
-}
-
-function showError(msg) {
-  const grid = document.getElementById("results-grid");
-  grid.innerHTML = `<p class="error-msg" role="alert">${msg}</p>`;
-}
-
-function pickPerk(perkArr) {
-  return perkArr[Math.floor(Math.random() * perkArr.length)];
 }
 
 function renderResults(heroes) {
-  const grid = document.getElementById("results-grid");
-  grid.innerHTML = "";
-
-  heroes.forEach((hero, idx) => {
-    const card = document.createElement("article");
-    card.className = "result-card";
-    card.style.animationDelay = `${idx * 60}ms`;
-    card.setAttribute("aria-label", `Player ${idx + 1}: ${hero.name}`);
-
-    let perksHTML = "";
-    if (state.perksEnabled && hero.perks) {
-      const minor = pickPerk(hero.perks.minor);
-      const major = pickPerk(hero.perks.major);
-      perksHTML = `
-        <div class="perk-section">
-          <div class="perk-row">
-            <span class="perk-badge minor">Minor</span>
-            <span class="perk-name">${minor}</span>
-          </div>
-          <div class="perk-row">
-            <span class="perk-badge major">Major</span>
-            <span class="perk-name">${major}</span>
-          </div>
+  const short = heroes.length < state.playerCount;
+  $("#results-grid").innerHTML = heroes.map((h, i) => {
+    let perks = "";
+    if (state.perks && h.perks) {
+      perks = `
+        <div class="perks">
+          <div class="perk"><span class="perk-tag minor">Minor</span><span>${esc(pick(h.perks.minor))}</span></div>
+          <div class="perk"><span class="perk-tag major">Major</span><span>${esc(pick(h.perks.major))}</span></div>
         </div>`;
     }
-
-    card.innerHTML = `
-      <header class="result-card-header">
-        <span class="player-label">P${idx + 1}</span>
-        <span class="hero-role-badge role-${hero.role.toLowerCase()}">${hero.role}</span>
-      </header>
-      <div class="hero-icon-large" aria-hidden="true">${hero.icon}</div>
-      <h2 class="hero-name">${hero.name}</h2>
-      ${perksHTML}
-    `;
-
-    grid.appendChild(card);
-  });
+    return `
+      <article class="result-card ${roleClass(h.role)}" style="--i:${i}">
+        <header class="rc-head">
+          <span class="rc-player">P${i + 1}</span>
+          ${tierChip(h.name)}
+        </header>
+        <div class="rc-icon" aria-hidden="true">${h.icon}</div>
+        <h2 class="rc-name">${esc(h.name)}</h2>
+        <span class="role-label">${h.role}</span>
+        ${ratingBlock(h.name, true)}
+        ${perks}
+        <button class="rc-link" data-hero="${esc(h.name)}">Counters →</button>
+      </article>`;
+  }).join("") + (short ? `<p class="error-msg">Only ${heroes.length} unique heroes match those filters.</p>` : "");
 }
 
-// ─────────────────────────────────────────────
-//  COUNTERS PAGE
-// ─────────────────────────────────────────────
-
-function setCounterRole(role, btn) {
-  state.counterRole = role;
-  document.querySelectorAll(".role-tab").forEach(t => t.classList.remove("active"));
-  btn.classList.add("active");
-  renderCounterGrid();
-}
-
-function filterCounterHeroes() {
-  renderCounterGrid();
-}
-
+// ─────────────── Counters ───────────────
 function renderCounterGrid() {
-  const query = (document.getElementById("hero-search")?.value || "").toLowerCase();
-  const filtered = ALL_HEROES.filter(h => {
-    const roleMatch = state.counterRole === "all" || h.role === state.counterRole;
-    const nameMatch = h.name.toLowerCase().includes(query);
-    return roleMatch && nameMatch;
-  });
+  const q = $("#hero-search").value.trim().toLowerCase();
+  const list = ALL_HEROES
+    .filter(h => (state.counterRole === "all" || h.role === state.counterRole) && h.name.toLowerCase().includes(q))
+    .sort((a, b) => ROLES.indexOf(a.role) - ROLES.indexOf(b.role) || a.name.localeCompare(b.name));
 
-  const grid = document.getElementById("counter-hero-grid");
-  grid.innerHTML = "";
-
-  filtered.forEach(h => {
-    const li = document.createElement("li");
-    li.className = "counter-hero-card" + (state.selectedCounterHero === h.name ? " selected" : "");
-    li.setAttribute("role", "button");
-    li.setAttribute("tabindex", "0");
-    li.setAttribute("aria-pressed", state.selectedCounterHero === h.name ? "true" : "false");
-    li.setAttribute("aria-label", `${h.name}, ${h.role}`);
-
-    li.innerHTML = `
-      <span class="c-hero-icon" aria-hidden="true">${h.icon}</span>
-      <span class="c-hero-name">${h.name}</span>
-      <span class="c-hero-role role-${h.role.toLowerCase()}">${h.role}</span>
-    `;
-
-    li.addEventListener("click", () => selectCounterHero(h.name));
-    li.addEventListener("keydown", e => {
-      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); selectCounterHero(h.name); }
-    });
-
-    grid.appendChild(li);
-  });
+  $("#counter-hero-grid").innerHTML = list.length ? list.map(h => `
+    <li>
+      <button class="hero-tile ${roleClass(h.role)}" data-hero="${esc(h.name)}" aria-pressed="${state.selected === h.name}">
+        <span class="ht-icon" aria-hidden="true">${h.icon}</span>
+        <span class="ht-name">${esc(h.name)}</span>
+        ${tierChip(h.name)}
+      </button>
+    </li>`).join("") : `<li class="error-msg">No heroes found.</li>`;
 }
 
-function selectCounterHero(name) {
-  state.selectedCounterHero = name;
-  renderCounterGrid();
-  renderCounterDetail(name);
+function counterList(names, kind) {
+  return names.map(n => {
+    const h = findHero(n);
+    return `<li><button class="ci ${kind}" data-hero="${esc(n)}">
+      <span aria-hidden="true">${h ? h.icon : "•"}</span><span>${esc(n)}</span>${h ? tierChip(n) : ""}
+    </button></li>`;
+  }).join("");
 }
 
-function findHero(name) {
-  return ALL_HEROES.find(h => h.name === name);
-}
-
-function renderCounterDetail(name) {
+function selectHero(name, { scroll = true } = {}) {
   const h = findHero(name);
   if (!h) return;
+  state.selected = name;
+  $$(".hero-tile").forEach(t => t.setAttribute("aria-pressed", t.dataset.hero === name));
 
-  const detail = document.getElementById("counter-detail");
-
-  const beatsHTML = h.beats.map(b => {
-    const bh = findHero(b);
-    return `<li class="counter-item beats">
-      <span class="ci-icon" aria-hidden="true">${bh ? bh.icon : "🎯"}</span>
-      <span class="ci-name">${b}</span>
-    </li>`;
-  }).join("");
-
-  const losesHTML = h.loses.map(b => {
-    const bh = findHero(b);
-    return `<li class="counter-item loses">
-      <span class="ci-icon" aria-hidden="true">${bh ? bh.icon : "❌"}</span>
-      <span class="ci-name">${b}</span>
-    </li>`;
-  }).join("");
-
+  const wr = META.winrates[name];
+  const detail = $("#counter-detail");
   detail.innerHTML = `
-    <div class="detail-inner">
-      <header class="detail-header">
-        <span class="detail-icon" aria-hidden="true">${h.icon}</span>
-        <div class="detail-meta">
-          <h2 class="detail-name">${h.name}</h2>
-          <span class="hero-role-badge role-${h.role.toLowerCase()}">${h.role}</span>
+    <header class="d-head ${roleClass(h.role)}">
+      <span class="d-icon" aria-hidden="true">${h.icon}</span>
+      <div>
+        <h2 class="d-name">${esc(h.name)}</h2>
+        <div class="d-meta">
+          <span class="role-label">${h.role}</span>
+          ${tierChip(h.name)}
+          ${wr ? `<span class="d-wr">${wr.toFixed(1)}% WR</span>` : ""}
         </div>
-      </header>
-
-      <div class="counters-grid">
-        <section class="counters-col" aria-label="${h.name} beats these heroes">
-          <h3 class="counters-col-heading beats-heading">
-            <span aria-hidden="true">✅</span> Strong against
-          </h3>
-          <ul class="counter-list">${beatsHTML}</ul>
-        </section>
-        <section class="counters-col" aria-label="These heroes beat ${h.name}">
-          <h3 class="counters-col-heading loses-heading">
-            <span aria-hidden="true">⚠️</span> Weak against
-          </h3>
-          <ul class="counter-list">${losesHTML}</ul>
-        </section>
       </div>
-
-      <aside class="tip-box" aria-label="Gameplay tip for ${h.name}">
-        <strong>How to play them:</strong> ${h.tip}
-      </aside>
+    </header>
+    ${ratingBlock(h.name)}
+    <div class="d-cols">
+      <section>
+        <h3 class="d-h good">Strong against</h3>
+        <ul class="ci-list">${counterList(h.beats, "good")}</ul>
+      </section>
+      <section>
+        <h3 class="d-h bad">Weak against</h3>
+        <ul class="ci-list">${counterList(h.loses, "bad")}</ul>
+      </section>
     </div>
+    <div class="tip"><strong>How to play</strong><p>${esc(h.tip)}</p></div>
+    ${h.perks ? `
+    <div class="d-perks">
+      <div><span class="perk-tag minor">Minor perks</span><ul>${h.perks.minor.map(p => `<li>${esc(p)}</li>`).join("")}</ul></div>
+      <div><span class="perk-tag major">Major perks</span><ul>${h.perks.major.map(p => `<li>${esc(p)}</li>`).join("")}</ul></div>
+    </div>` : ""}
   `;
+  if (scroll && window.matchMedia("(max-width: 899px)").matches) {
+    detail.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+}
 
-  detail.scrollIntoView({ behavior: "smooth", block: "nearest" });
+function openCounters(name) {
+  showPage("counters");
+  state.counterRole = "all";
+  $$("#counter-seg button").forEach(b => b.setAttribute("aria-checked", b.dataset.role === "all"));
+  $("#hero-search").value = "";
+  renderCounterGrid();
+  selectHero(name);
+}
+
+// ─────────────── Meta ───────────────
+function renderMeta() {
+  $("#season-strip").innerHTML = `
+    <span><b>${META.season}</b> · ${META.patch}</span>
+    <span class="dot" aria-hidden="true"></span>
+    <span>${ALL_HEROES.length} heroes</span>
+    <span class="dot" aria-hidden="true"></span>
+    <span>Next: <b>${META.upcoming.name}</b> (${META.upcoming.role}), Season 6</span>`;
+
+  $("#meta-eyebrow").textContent = `${META.season} · ${META.patch}`;
+  $("#meta-sub").textContent = `Ranked by 5v5 win rate across all ranks. Updated ${META.updated}. Tap a hero for counters.`;
+
+  $("#meta-cols").innerHTML = ROLES.map(role => {
+    const heroes = ALL_HEROES.filter(h => h.role === role);
+    const rows = TIER_ORDER.map(t => {
+      const inTier = heroes
+        .filter(h => tierOf(h.name) === t)
+        .sort((a, b) => (META.winrates[b.name] || 0) - (META.winrates[a.name] || 0));
+      if (!inTier.length) return "";
+      return `
+        <div class="tier-row">
+          <span class="tier tier-${t.toLowerCase()} tier-lg">${t}</span>
+          <ul class="tier-heroes">
+            ${inTier.map(h => `
+              <li><button class="th" data-hero="${esc(h.name)}">
+                <span aria-hidden="true">${h.icon}</span>
+                <span class="th-name">${esc(h.name)}</span>
+                <span class="th-wr">${(META.winrates[h.name] || 0).toFixed(1)}%</span>
+              </button></li>`).join("")}
+          </ul>
+        </div>`;
+    }).join("");
+    return `<section class="panel meta-col ${roleClass(role)}"><h2 class="meta-role">${role}</h2>${rows}</section>`;
+  }).join("");
+
+  $("#meta-note").innerHTML = `Source: <a href="${META.sourceUrl}" target="_blank" rel="noopener">${esc(META.source)}</a>. ` +
+    `Win rates move every patch, so treat tiers as a guide rather than gospel. ` +
+    `Difficulty-to-play and difficulty-to-counter ratings (1–5, shown on each hero) are editorial estimates, not official data. ` +
+    `${esc(META.upcoming.name)}: ${esc(META.upcoming.note)}`;
 }
 
 // ─────────────── Init ───────────────
 document.addEventListener("DOMContentLoaded", () => {
-  // Init stepper states
-  document.getElementById("dec-players").disabled = false;
-  document.getElementById("inc-players").disabled = false;
-  // Init toggles to correct visual state
-  document.getElementById("unique-toggle").classList.add("on");
+  // Navigation
+  document.addEventListener("click", e => {
+    const nav = e.target.closest("[data-page]");
+    if (nav) { e.preventDefault(); showPage(nav.dataset.page); return; }
+    const heroBtn = e.target.closest("[data-hero]");
+    if (!heroBtn) return;
+    if (heroBtn.closest("#counter-hero-grid")) selectHero(heroBtn.dataset.hero);
+    else openCounters(heroBtn.dataset.hero);
+  });
+  window.addEventListener("hashchange", () => showPage(location.hash.slice(1)));
+
+  // Roller controls
+  $("#dec-players").addEventListener("click", () => setPlayers(state.playerCount - 1));
+  $("#inc-players").addEventListener("click", () => setPlayers(state.playerCount + 1));
+  bindSeg($("#role-seg"), r => { state.role = r; });
+  $("#unique-toggle").addEventListener("change", e => { state.unique = e.target.checked; });
+  $("#perks-toggle").addEventListener("change", e => { state.perks = e.target.checked; });
+  $("#meta-toggle").addEventListener("change", e => { state.metaOnly = e.target.checked; });
+  $("#roll-btn").addEventListener("click", rollHeroes);
+  document.addEventListener("keydown", e => {
+    if (e.code === "Space" && state.page === "selector" && !e.target.closest("input, button, select, textarea")) {
+      e.preventDefault();
+      rollHeroes();
+    }
+  });
+
+  // Counter controls
+  bindSeg($("#counter-seg"), r => { state.counterRole = r; renderCounterGrid(); });
+  $("#hero-search").addEventListener("input", renderCounterGrid);
+
+  setPlayers(state.playerCount);
+  renderCounterGrid();
+  renderMeta();
+  showPage(location.hash.slice(1) || "selector");
 });

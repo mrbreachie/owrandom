@@ -223,15 +223,6 @@ const HEROES = [
       major: ["Tactical Visor Extend — Tactical Visor duration increased", "Armor-Piercing Rounds — Bullets penetrate barriers"]
     }
   },
-  { name: "Sombra",       role: "Damage",  icon: "💻",
-    beats: ["Ana","Mercy","Kiriko"],
-    loses: ["Moira","Reaper","Roadhog"],
-    tip: "Hack completely disables abilities and ultimates. Virus stacks damage onto hacked targets. Always focus isolated supports. Heroes who rely purely on primary fire still destroy her after being hacked.",
-    perks: {
-      minor: ["Virus Spread — Virus applies to nearby enemies", "EMP Expand — EMP radius increased"],
-      major: ["Opportunist Overload — Translocator leaves a decoy", "System Crash — Hack prevents health pack use"]
-    }
-  },
   { name: "Symmetra",     role: "Damage",  icon: "💠",
     beats: ["Reinhardt","Roadhog","Orisa"],
     loses: ["Pharah","Reaper","Tracer"],
@@ -244,7 +235,7 @@ const HEROES = [
   { name: "Torbjorn",     role: "Damage",  icon: "🔧",
     beats: ["Pharah","Reaper","Tracer"],
     loses: ["Bastion","Junkrat","Sombra"],
-    tip: "Place turrets in positions enemies approach from unexpected angles. Overload makes him briefly unkillable in fights. Sombra hacks his turret out of existence.",
+    tip: "Place turrets in positions enemies approach from unexpected angles. Overload makes him briefly unkillable in fights. Sombra's Hotfix can hack his turret, so reposition it often.",
     perks: {
       minor: ["Slag Hammer — Rivet Gun's shotgun mode fires more pellets", "Overload Extension — Overload lasts slightly longer"],
       major: ["Turret Upgrade — Turret gains extra health and damage", "Molten Core Overflow — Molten Core lasts longer"]
@@ -270,10 +261,19 @@ const HEROES = [
   },
 
   // SUPPORT
+  { name: "Sombra",       role: "Support", icon: "💻",
+    beats: ["Tracer","Genji","Doomfist"],
+    loses: ["Junkrat","Reaper","Winston"],
+    tip: "Now a Support (Tactician). Hotfix heals an ally over time and can hack health packs and enemy deployables. Throw Cyberspace into fights to weaken enemies and heal your team, then Translocate out. EMP shreds a percentage of current health and destroys barriers, so save it to open a fight.",
+    perks: {
+      minor: ["Life Hack — EMP applies Hotfix to all nearby allies", "CTRL ALT ESC — Translocating below half health starts health regen"],
+      major: ["Data Packet — Hacking health packs cuts Hotfix cooldown by 4s", "Cybersecurity — Cyberspace healing doubled on allies below half health"]
+    }
+  },
   { name: "Ana",          role: "Support", icon: "💉",
     beats: ["Reinhardt","Roadhog","Orisa"],
     loses: ["Genji","Tracer","Sombra"],
-    tip: "Sleep Dart is her biggest tool — use it to shut down diving tanks or cancel ultimates. Stay far back. Genji can deflect her darts and Sombra will hack her out of effectiveness.",
+    tip: "Sleep Dart is her biggest tool — use it to shut down diving tanks or cancel ultimates. Stay far back. Genji can deflect her darts and Sombra's EMP punishes her lack of escapes.",
     perks: {
       minor: ["Nano Burst — Nano Boost grants extra speed", "Somnolent — Sleep Dart applies anti-heal briefly after waking"],
       major: ["Nano Storm — Nano Boost also boosts nearby allies", "Biotic Grenade Expand — Grenade affects a larger area"]
@@ -318,7 +318,7 @@ const HEROES = [
   { name: "Lifeweaver",   role: "Support", icon: "🌸",
     beats: ["Roadhog","Doomfist","Pharah"],
     loses: ["Sombra","Tracer","Winston"],
-    tip: "Life Grip pulls allies out of danger or ults — communication is key. Tree of Life blocks sightlines and heals. Sombra hacking him prevents both his main abilities.",
+    tip: "Life Grip pulls allies out of danger or ults — communication is key. Tree of Life blocks sightlines and heals. A Sombra EMP hack shuts both down, so hold Life Grip until it is spent.",
     perks: {
       minor: ["Rejuvenating Dash — Petal Platform briefly boosts jump height", "Thorn Volley Burst — Thorn Volley fires faster briefly"],
       major: ["Immortal Blossom — Tree of Life also prevents death briefly", "Life Grip Extend — Grip reaches further"]
@@ -327,7 +327,7 @@ const HEROES = [
   { name: "Lucio",        role: "Support", icon: "🎵",
     beats: ["Roadhog","Junkrat","Reaper"],
     loses: ["Tracer","Sombra","Ana"],
-    tip: "Speed boost is one of the best abilities in the game — keep it active in fights. Amp It Up at key moments. He can boop enemies off the map. Sombra hacking him silences his aura entirely.",
+    tip: "Speed boost is one of the best abilities in the game — keep it active in fights. Amp It Up at key moments. He can boop enemies off the map. A Sombra EMP hack silences his aura, so spread out when she has ult.",
     perks: {
       minor: ["Reverb — Soundwave has increased range", "Beat Drop — Sound Barrier instantly heals on landing"],
       major: ["Accelerando — Speed boost also increases fire rate", "Sound Surge — Amp It Up boosts aura radius"]
@@ -413,7 +413,7 @@ const NEW_HEROES = [
   { name: "Emre",   role: "Damage",  icon: "🔋",
     beats: ["Roadhog","Orisa","Reinhardt"],
     loses: ["Tracer","Genji","Sombra"],
-    tip: "Siphon Blaster heals him as he deals damage — punish tanks up close. Cyber Frag detonates for burst damage. Was dominant but got hit with healing conversion nerfs (80% to 60%) this patch.",
+    tip: "Siphon Blaster heals him as he deals damage — punish tanks up close. Cyber Frag detonates for burst damage. Stay in close range, where his healing keeps him alive.",
     perks: {
       minor: ["Cyber Surge — Siphon Blaster briefly overcharges after a kill", "Frag Bounce — Cyber Frag bounces once before detonating"],
       major: ["Drain Field — Siphon Blaster creates a life-steal aura briefly", "System Overload — Cyber Frag minimum radius doubled"]
@@ -431,7 +431,7 @@ const NEW_HEROES = [
   { name: "Freja",  role: "Damage",  icon: "🪃",
     beats: ["Zenyatta","Ana","Mercy"],
     loses: ["D.Va","Tracer","Winston"],
-    tip: "Updraft gives vertical mobility — reach high ground or escape dives. Bola Shot binds enemies in place for follow-up. Buffed this patch: Updraft CD 12s to 10s and Bounty Hunting ult charge up to 33%.",
+    tip: "Updraft gives vertical mobility — reach high ground or escape dives. Bola Shot binds enemies in place for follow-up. Chain eliminations to build Bounty Hunting ult charge.",
     perks: {
       minor: ["Rising Winds — Updraft no longer reduces height gained", "Forager — Heal on elimination"],
       major: ["Bounty Hunting — Final blows grant 33% ult charge", "Volley — Bola fires in a rapid burst"]
@@ -458,7 +458,7 @@ const NEW_HEROES = [
   { name: "Mizuki", role: "Support", icon: "🌊",
     beats: ["Bastion","Symmetra","Torbjorn"],
     loses: ["Tracer","Genji","Sombra"],
-    tip: "Kekkai Sanctuary now absorbs projectiles going both in and out. Healing reduced to 40/s and duration cut to 6s this patch. Strong barrier-oriented support — place it to create safe pockets for your tank.",
+    tip: "Kekkai Sanctuary absorbs projectiles going both in and out. Strong barrier-oriented support — place it to create safe pockets for your tank.",
     perks: {
       minor: ["Sanctuary Pulse — Kekkai Sanctuary pulses extra healing on placement", "Current — Move speed increased inside Sanctuary"],
       major: ["Tidal Wave — Sanctuary absorbs ults briefly", "Flood — Sanctuary expands on activation"]
@@ -467,12 +467,126 @@ const NEW_HEROES = [
   { name: "Wuyang", role: "Support", icon: "🐉",
     beats: ["Roadhog","Reinhardt","Sigma"],
     loses: ["Tracer","Genji","Sombra"],
-    tip: "Xuanwu Staff orbs apply armor reduction — fixed double-stack bug this patch. Strong sustained healing. Pairs well with barrier tanks. His orb damage was nerfed from 40% to 30% this patch.",
+    tip: "Xuanwu Staff orbs apply armor reduction. Strong sustained healing. Pairs well with barrier tanks.",
     perks: {
       minor: ["Splish Splash — Cooldown reduced to 10s", "Orb Bounce — Orbs ricochet on walls"],
       major: ["Paindrops — Orbs deal 30% bonus damage", "Dragon Form — Xuanwu Staff gains a transformation attack"]
     }
   },
+  { name: "D.Mon", role: "Tank", icon: "🕹️",
+    beats: ["Genji","Tracer","Reaper"],
+    loses: ["Zarya","Bastion","Ana"],
+    tip: "MEKA's new leader. Brawl up close with Plasma Saber behind Power Barrier, then use Surging Strike to push enemies away. Propulsors burn fuel, so watch the gauge. Limit Break gives you overhealth and makes enemies take more damage: dive with it, and Call Mech if you get ejected.",
+    perks: {
+      minor: ["Beast Within — Plasma Saber hits restore 40 Power Barrier health", "MEKA Mobility — Propulsors cost 30% less fuel while barrier is up"],
+      major: ["Overstrike — Surging Strike gains 125% lifesteal", "Focused Fusion — Fusion Repeater fires stronger, spreadless shots"]
+    }
+  },
+  { name: "Shion", role: "Damage", icon: "🏍️",
+    beats: ["Widowmaker","Zenyatta","Ana"],
+    loses: ["Cassidy","Brigitte","Mei"],
+    tip: "A Flanker who dives on the Joyride bike. Ride in, dismount to launch the bike at a target, then shred with Kira Pistols. Hold Execution to tighten its X-volley spread for burst. Evade gives overhealth, so save it for the escape. Satsuriku Spree's three rushes clean up a staggered backline.",
+    perks: {
+      minor: ["Survival Instinct — Evade overhealth lasts 1s longer", "X Machina — Execution deals 20% more to targets below half health"],
+      major: ["Refuel — Joyride restores 50 HP and regens 20 HP/s", "Faces of Death — Gain the Recon, Specialist and Sharpshooter passives"]
+    }
+  },
+  { name: "Doctrine", role: "Support", icon: "🪬",
+    beats: ["Reinhardt","Junker Queen","Mauga"],
+    loses: ["Winston","Tracer","Genji"],
+    tip: "A Survivor support with life-draining drones. Use Infuse to boost your next ability: Infused Scepter fires a piercing blast, Infused Drones also buff you, and Infused Shrouded Momentum grants free flight. Deliverance cuts enemy max health and gives your team overhealth, which wins long brawls.",
+    perks: {
+      minor: ["Saving Grace — Invigorating Drones heal for 40 on apply", "Sanguine Siphon — Infused Scepter heals you for 50% of damage dealt"],
+      major: ["Transfusion — Damage and healing reduce Infuse cooldown", "Cost of Life — Lose 25 max HP, Scepter healing +20%"]
+    }
+  },
 ];
 
 const ALL_HEROES = [...HEROES, ...NEW_HEROES];
+
+// ─── Current meta ───
+// Tiers are within each role, from Counterwatch 5v5 win rates (all ranks, Sep 21 – Nov 19, 2026).
+const META = {
+  season: "Season 5",
+  patch: "Mid-season 5.5",
+  updated: "Nov 20, 2026",
+  source: "Counterwatch 5v5 win rates, all ranks, Sep 21 – Nov 19, 2026",
+  sourceUrl: "https://www.counterwatch.gg/stats/overwatch/tier-list",
+  upcoming: { name: "Hudson", role: "Damage", note: "Omnic detective. Joins as hero #55 in Season 6 (December 2026)." },
+  winrates: {
+    "Reinhardt":53.8,"Domina":53.4,"Junker Queen":53.3,"Winston":52.6,"Doomfist":51.6,"D.Mon":51.3,"Hazard":50.9,"Wrecking Ball":50.3,"Sigma":50.0,"Ramattra":48.8,"Roadhog":47.5,"Zarya":47.4,"Mauga":46.2,"D.Va":46.1,"Orisa":46.0,
+    "Torbjorn":56.5,"Vendetta":54.6,"Symmetra":54.0,"Venture":53.4,"Mei":52.9,"Genji":52.4,"Pharah":52.4,"Junkrat":52.0,"Anran":51.0,"Tracer":50.5,"Reaper":50.5,"Ashe":50.3,"Sierra":50.2,"Hanzo":50.0,"Echo":49.3,"Shion":48.5,"Soldier: 76":48.4,"Widowmaker":48.0,"Emre":47.2,"Cassidy":47.1,"Freja":47.1,"Bastion":46.5,"Sojourn":45.1,
+    "Zenyatta":54.0,"Brigitte":53.2,"Lucio":51.6,"Doctrine":51.4,"Wuyang":50.9,"Juno":50.9,"Mizuki":50.7,"Illari":50.7,"Sombra":50.5,"Moira":50.2,"Mercy":49.4,"Jetpack Cat":48.9,"Lifeweaver":48.8,"Ana":47.9,"Baptiste":47.1,"Kiriko":46.7,
+  },
+};
+
+// Tiers exactly as Counterwatch published them (S highest, F lowest).
+META.tiers = {
+  "Reinhardt":"S","Domina":"S","Junker Queen":"S","Winston":"A","Doomfist":"A","D.Mon":"B","Hazard":"B","Wrecking Ball":"B","Sigma":"C","Ramattra":"C","Roadhog":"D","Zarya":"D","Mauga":"F","D.Va":"F","Orisa":"F",
+  "Torbjorn":"S","Vendetta":"S","Symmetra":"S","Venture":"S","Mei":"A","Genji":"A","Pharah":"A","Junkrat":"A","Anran":"B","Tracer":"B","Reaper":"B","Ashe":"B","Sierra":"B","Hanzo":"B","Echo":"C","Shion":"D","Soldier: 76":"D","Widowmaker":"D","Emre":"D","Cassidy":"D","Freja":"D","Bastion":"F","Sojourn":"F",
+  "Zenyatta":"S","Brigitte":"S","Lucio":"A","Doctrine":"B","Wuyang":"B","Juno":"B","Mizuki":"B","Illari":"B","Sombra":"B","Moira":"B","Mercy":"C","Jetpack Cat":"C","Lifeweaver":"C","Ana":"D","Baptiste":"D","Kiriko":"F",
+};
+
+// ─── Ratings (1–5) ───
+// play:    how hard the hero is to play well (mechanics, decision-making, cooldown juggling).
+// counter: how hard the hero is to shut down (mobility, self-sustain, how many hard counters exist).
+// Editorial estimates based on each kit, not official Blizzard data.
+const RATINGS = {
+  // Tank
+  "D.Va":          { play: 2, counter: 3 },
+  "Doomfist":      { play: 5, counter: 3 },
+  "Junker Queen":  { play: 3, counter: 3 },
+  "Mauga":         { play: 2, counter: 2 },
+  "Orisa":         { play: 1, counter: 2 },
+  "Ramattra":      { play: 3, counter: 3 },
+  "Reinhardt":     { play: 2, counter: 3 },
+  "Roadhog":       { play: 2, counter: 2 },
+  "Sigma":         { play: 4, counter: 3 },
+  "Winston":       { play: 3, counter: 4 },
+  "Wrecking Ball": { play: 5, counter: 4 },
+  "Zarya":         { play: 4, counter: 3 },
+  "Hazard":        { play: 3, counter: 3 },
+  "Domina":        { play: 3, counter: 4 },
+  "D.Mon":         { play: 3, counter: 3 },
+  // Damage
+  "Ashe":          { play: 3, counter: 3 },
+  "Bastion":       { play: 1, counter: 2 },
+  "Cassidy":       { play: 3, counter: 2 },
+  "Echo":          { play: 4, counter: 4 },
+  "Genji":         { play: 5, counter: 4 },
+  "Hanzo":         { play: 4, counter: 3 },
+  "Junkrat":       { play: 2, counter: 3 },
+  "Mei":           { play: 2, counter: 3 },
+  "Pharah":        { play: 3, counter: 4 },
+  "Reaper":        { play: 1, counter: 2 },
+  "Sojourn":       { play: 4, counter: 3 },
+  "Soldier: 76":   { play: 1, counter: 2 },
+  "Symmetra":      { play: 2, counter: 2 },
+  "Torbjorn":      { play: 1, counter: 2 },
+  "Tracer":        { play: 5, counter: 5 },
+  "Widowmaker":    { play: 5, counter: 4 },
+  "Venture":       { play: 3, counter: 3 },
+  "Freja":         { play: 4, counter: 3 },
+  "Anran":         { play: 3, counter: 3 },
+  "Vendetta":      { play: 4, counter: 4 },
+  "Emre":          { play: 2, counter: 2 },
+  "Sierra":        { play: 3, counter: 3 },
+  "Shion":         { play: 4, counter: 4 },
+  // Support
+  "Ana":           { play: 4, counter: 2 },
+  "Baptiste":      { play: 3, counter: 3 },
+  "Brigitte":      { play: 2, counter: 3 },
+  "Illari":        { play: 3, counter: 2 },
+  "Kiriko":        { play: 3, counter: 4 },
+  "Lifeweaver":    { play: 3, counter: 3 },
+  "Lucio":         { play: 3, counter: 4 },
+  "Mercy":         { play: 1, counter: 3 },
+  "Moira":         { play: 1, counter: 3 },
+  "Zenyatta":      { play: 3, counter: 2 },
+  "Sombra":        { play: 4, counter: 4 },
+  "Jetpack Cat":   { play: 3, counter: 4 },
+  "Juno":          { play: 2, counter: 3 },
+  "Mizuki":        { play: 3, counter: 3 },
+  "Wuyang":        { play: 3, counter: 3 },
+  "Doctrine":      { play: 3, counter: 3 },
+};
