@@ -36,11 +36,11 @@
       <div class="page-head">
         <p class="eyebrow">Random hero selector</p>
         <h1 id="t-selector" class="page-title">Roll your <em>squad</em></h1>
-        <p class="page-sub">Random heroes for up to 6 players, with optional perks and a meta-only filter.</p>
+        <p class="page-sub">Random heroes for up to 6 players, with optional perks and a meta-only filter. Use Custom to roll only the roles you need.</p>
       </div>
 
       <div class="panel controls">
-        <div class="control">
+        <div class="control" id="players-control">
           <span class="control-label" id="lbl-players">Players</span>
           <div class="stepper" role="group" aria-labelledby="lbl-players">
             <button class="stepper-btn" id="dec-players" aria-label="Fewer players">−</button>
@@ -57,6 +57,45 @@
             <button role="radio" data-role="Tank" aria-checked="false">Tank</button>
             <button role="radio" data-role="Damage" aria-checked="false">DPS</button>
             <button role="radio" data-role="Support" aria-checked="false">Supp</button>
+            <button role="radio" data-role="custom" aria-checked="false" title="Choose how many of each role to roll">Custom</button>
+          </div>
+        </div>
+
+        <div class="control custom-roles" id="custom-roles" hidden>
+          <span class="control-label" id="lbl-custom">Slots to roll <span class="custom-total" id="custom-total"></span></span>
+          <div class="role-steppers" role="group" aria-labelledby="lbl-custom">
+            <div class="role-stepper role-tank" data-slot="Tank">
+              <span class="rs-name">Tank</span>
+              <div class="stepper">
+                <button class="stepper-btn" data-step="-1" aria-label="Fewer Tank slots">−</button>
+                <output class="stepper-val" aria-live="polite">1</output>
+                <button class="stepper-btn" data-step="1" aria-label="More Tank slots">+</button>
+              </div>
+            </div>
+            <div class="role-stepper role-damage" data-slot="Damage">
+              <span class="rs-name">DPS</span>
+              <div class="stepper">
+                <button class="stepper-btn" data-step="-1" aria-label="Fewer DPS slots">−</button>
+                <output class="stepper-val" aria-live="polite">2</output>
+                <button class="stepper-btn" data-step="1" aria-label="More DPS slots">+</button>
+              </div>
+            </div>
+            <div class="role-stepper role-support" data-slot="Support">
+              <span class="rs-name">Support</span>
+              <div class="stepper">
+                <button class="stepper-btn" data-step="-1" aria-label="Fewer Support slots">−</button>
+                <output class="stepper-val" aria-live="polite">2</output>
+                <button class="stepper-btn" data-step="1" aria-label="More Support slots">+</button>
+              </div>
+            </div>
+            <div class="role-stepper role-any" data-slot="all" title="Any role">
+              <span class="rs-name">Any</span>
+              <div class="stepper">
+                <button class="stepper-btn" data-step="-1" aria-label="Fewer any-role slots">−</button>
+                <output class="stepper-val" aria-live="polite">0</output>
+                <button class="stepper-btn" data-step="1" aria-label="More any-role slots">+</button>
+              </div>
+            </div>
           </div>
         </div>
 

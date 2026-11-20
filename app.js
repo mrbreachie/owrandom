@@ -16,6 +16,7 @@ const state = {
   unique: true,
   perks: false,
   metaOnly: false,
+  custom: { Tank: 1, Damage: 2, Support: 2, all: 0 },
   counterRole: "all",
   selected: null,
 };
@@ -80,6 +81,36 @@ function setPlayers(n) {
   $("#inc-players").disabled = state.playerCount >= 6;
 }
 
+// Custom mode: per-role slot counts, max 6 total, at least 1.
+const MAX_SLOTS = 6;
+const customTotal = () => Object.values(state.custom).reduce((a, b) => a + b, 0);
+
+function setCustom(slot, n) {
+  const others = customTotal() - state.custom[slot];
+  state.custom[slot] = Math.max(0, Math.min(n, MAX_SLOTS - others));
+  if (customTotal() === 0) state.custom[slot] = 1;
+  renderCustom();
+}
+
+function renderCustom() {
+  const total = customTotal();
+  $$("#custom-roles .role-stepper").forEach(el => {
+    const n = state.custom[el.dataset.slot];
+    $(".stepper-val", el).textContent = n;
+    $("[data-step='-1']", el).disabled = n <= 0 || total <= 1;
+    $("[data-step='1']", el).disabled = total >= MAX_SLOTS;
+    el.classList.toggle("is-zero", n === 0);
+  });
+  $("#custom-total").textContent = `· ${total} of ${MAX_SLOTS}`;
+}
+
+function setRoleMode(role) {
+  state.role = role;
+  const custom = role === "custom";
+  $("#custom-roles").hidden = !custom;
+  $("#players-control").hidden = custom;
+}
+
 function shuffle(arr) {
   const a = [...arr];
   for (let i = a.length - 1; i > 0; i--) {
@@ -108,32 +139,42 @@ function drawFrom(pool, count, used) {
   return out;
 }
 
-function rollHeroes() {
-  const used = new Set();
-  let picked = [];
-
+// The role pool for each slot, in display order.
+function slotsToRoll() {
   if (state.role === "5v5") {
     // Fill slots in 1-2-2 order, repeating the pattern for 6 players.
-    const slots = ["Tank", "Damage", "Damage", "Support", "Support", "Damage"].slice(0, state.playerCount);
-    for (const r of slots) picked.push(...drawFrom(poolFor(r), 1, used));
-  } else {
-    picked = drawFrom(poolFor(state.role), state.playerCount, used);
+    return ["Tank", "Damage", "Damage", "Support", "Support", "Damage"].slice(0, state.playerCount);
+  }
+  if (state.role === "custom") {
+    // Fixed roles first so "Any" slots don't take heroes a fixed slot needs.
+    return ["Tank", "Damage", "Support", "all"].flatMap(r => Array(state.custom[r]).fill(r));
+  }
+  return Array(state.playerCount).fill(state.role);
+}
+
+function rollHeroes() {
+  const used = new Set();
+  const slots = slotsToRoll();
+  const picked = [];
+  for (const r of slots) {
+    const [h] = drawFrom(poolFor(r), 1, used);
+    if (h) picked.push({ hero: h, flex: r === "all" && state.role === "custom" });
   }
 
   if (!picked.length) {
     $("#results-grid").innerHTML = `<p class="error-msg" role="alert">No heroes match those filters.</p>`;
     return;
   }
-  renderResults(picked);
+  renderResults(picked, slots.length);
   const btn = $("#roll-btn");
   btn.classList.remove("rolling");
   void btn.offsetWidth;
   btn.classList.add("rolling");
 }
 
-function renderResults(heroes) {
-  const short = heroes.length < state.playerCount;
-  $("#results-grid").innerHTML = heroes.map((h, i) => {
+function renderResults(results, wanted) {
+  const short = results.length < wanted;
+  $("#results-grid").innerHTML = results.map(({ hero: h, flex }, i) => {
     let perks = "";
     if (state.perks && h.perks) {
       perks = `
@@ -150,12 +191,12 @@ function renderResults(heroes) {
         </header>
         <div class="rc-icon" aria-hidden="true">${h.icon}</div>
         <h2 class="rc-name">${esc(h.name)}</h2>
-        <span class="role-label">${h.role}</span>
+        <span class="role-label">${h.role}${flex ? ` <span class="flex-tag">Any</span>` : ""}</span>
         ${ratingBlock(h.name, true)}
         ${perks}
         <button class="rc-link" data-hero="${esc(h.name)}">Counters →</button>
       </article>`;
-  }).join("") + (short ? `<p class="error-msg">Only ${heroes.length} unique heroes match those filters.</p>` : "");
+  }).join("") + (short ? `<p class="error-msg">Only ${results.length} unique heroes match those filters.</p>` : "");
 }
 
 // ─────────────── Counters ───────────────
@@ -293,7 +334,14 @@ document.addEventListener("DOMContentLoaded", () => {
   // Roller controls
   $("#dec-players").addEventListener("click", () => setPlayers(state.playerCount - 1));
   $("#inc-players").addEventListener("click", () => setPlayers(state.playerCount + 1));
-  bindSeg($("#role-seg"), r => { state.role = r; });
+  bindSeg($("#role-seg"), setRoleMode);
+  $("#custom-roles").addEventListener("click", e => {
+    const btn = e.target.closest("[data-step]");
+    if (!btn) return;
+    const slot = btn.closest(".role-stepper").dataset.slot;
+    setCustom(slot, state.custom[slot] + Number(btn.dataset.step));
+  });
+  renderCustom();
   $("#unique-toggle").addEventListener("change", e => { state.unique = e.target.checked; });
   $("#perks-toggle").addEventListener("change", e => { state.perks = e.target.checked; });
   $("#meta-toggle").addEventListener("change", e => { state.metaOnly = e.target.checked; });
